@@ -1,3 +1,6 @@
+
+
+
 import wikipedia
 import requests
 import json
@@ -9,12 +12,12 @@ class word_data():
 
     def __init__(self):
         word_data.count = self.count +1 
-        word_data.input_string = 'apple'
+        
         
 
 
     def definition(self):
-        url = 'https://twinword-word-graph-dictionary.p.rapidapi.com/association/'
+        url = 'https://twinword-word-graph-dictionary.p.rapidapi.com/definition/'
 
         params= {'entry':word_data.input_string}
 
@@ -27,12 +30,18 @@ class word_data():
 
         definition = requests.request("GET", url, headers=headers, params=params)
         definition = definition.json()
+        noun = definition['meaning']['noun'][1:]
+        verb = definition['meaning']['verb']
+        adverb = definition['meaning']['adverb']
+        adjective = definition['meaning']['adjective']
 
-        return definition['meaning']
+        output = ('Nouns = : ', noun, '\n', 'Verbs = : ', verb, '\n', 'Adverbs = : ', adverb, '\n', 'Adjectives = : ', adjective)
+
+        return output
 
 
     def synonym(self):
-        url = 'https://twinword-word-graph-dictionary.p.rapidapi.com/definition/'
+        url = 'https://twinword-word-graph-dictionary.p.rapidapi.com/reference/'
 
         params= {'entry':word_data.input_string}
 
@@ -46,37 +55,69 @@ class word_data():
         synonym = requests.request("GET", url, headers=headers, params=params)
         synonym = synonym.json()
 
-        return synonym['assoc_word']
+        return synonym['relation']['synonyms']
         
 
     def antonym(self):
-        output = (word_data.input_string + ': *antonyms*')
-        return output
+
+        url = "https://languagetools.p.rapidapi.com/antonyms/{}".format(word_data.input_string)
+
+        headers = {
+        'x-rapidapi-host': "languagetools.p.rapidapi.com",
+        'x-rapidapi-key': "08754af8e3mshfe2705eb50fda80p1cc781jsn0ae2c4511afc"
+                }
+
+        output = requests.request("GET", url, headers=headers)
+
+        output = output.json()       
+        return output["antonyms"]
 
 
 
 
 class wiki_data():
+    input_string = 'apple'
+    results = wikipedia.search(input_string, results = 15)
+    suggested_results = results[0]
+    wiki_page = wikipedia.page(suggested_results)
+    summary = wikipedia.summary(suggested_results)
     
+    wiki_url = wiki_page.url
 
     def __init__(self):
-    
-        pass
-
-    def get_wiki_data(self, input_string):
-        wiki_data.wiki_page = wikipedia.WikipediaPage(title= input_string)
-
-        wiki_data.link = wiki_data.wiki_page.html()#for graphic preview on GUI
-
-        wiki_data.wiki_excerpt = wiki_data.wiki_page.summary
+        results = wikipedia.search(wiki_data.input_string, results = 15)
+        wiki_data.search_result = results
+        suggested_results = results[0]
+        wiki_data.input_string = suggested_results
         
-        wiki_data.wiki_URL = wiki_data.wiki_page.url
+        wiki_data.wiki_page = wikipedia.page(suggested_results)
+        wiki_data.summary = wiki_data.wiki_page.summary
+        wiki_data.wiki_url = wiki_data.wiki_page.url
+        #wiki_data.search_choice = []
+    
+        
 
+    def search_result(self):
+        results = wikipedia.search(wiki_data.input_string, results = 15)
+        wiki_data.search_result = results
+        return results
 
+        
 
-    def get_wiki_link(self, input_string):
+    def wiki_url(self):
+        try:
+            page = wiki_data.wiki_page
+            url = page.url
+            
 
-        #link_string = 
+            wiki_data.wiki_url = url
 
-        #wiki_data.link  = 
-        pass
+        except:
+            wiki_data.input_string = wikipedia.search(wiki_data.input_string, results= 1)
+            wiki_data.wiki_page = wikipedia.page(wiki_data.input_string, auto_suggest=False)
+            
+            
+
+            wiki_data.wiki_url = wiki_data.wiki_page.url
+
+        return wiki_data.wiki_url
