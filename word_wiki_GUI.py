@@ -2,6 +2,7 @@ from tkinter import *
 import wikipedia
 from PIL import ImageTk,Image
 from word_wiki_classes import wiki_data, word_data
+import os
 
 
 search_string = 'cat'
@@ -257,7 +258,10 @@ w = tk.winfo_screenwidth()
 h = tk.winfo_screenheight()
 
 
-image1 = Image.open("C:\\Users\\broph\\Pictures\\background.png")
+cwd = os.getcwd()
+image_path = "{}\\Word_Wiki\\Word_Wiki\\source_images\\background.png".format(cwd)
+
+image1 = Image.open(image_path)
 
 sized_image = image1.resize((w, h), Image.ANTIALIAS)
 new_pic = ImageTk.PhotoImage(sized_image)
